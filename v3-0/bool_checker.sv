@@ -6,6 +6,6 @@ checker bool_checker ( clk, rst, RT, RDY, START, ENDD) ;
 
 	default disable iff rst;
 
-	assert property (RT -> !(RDY || START || ENDD));
+	assert property (RT |-> !(RDY || START || ENDD));
 
 endchecker
