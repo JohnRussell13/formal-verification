@@ -6,20 +6,13 @@ localparam N = 3, M = 3;
 
 function logic [$clog2(N)-1:0] next_ind(input int counter);
     logic [$clog2(N)-1:0] ind;
-    int mult;
-    mult = 1 << (N-1);
 
     for(int i = N-1; i >= 0; i--) begin
-        if(!(counter % mult)) begin
+        if(!(counter - ((counter >> i) << i))) begin
             ind = i;
             return ind;
         end
-        mult = mult >> 1;
     end
-
-    // should never reach
-    ind = 0;
-    return ind;
 endfunction
 
 function logic [$clog2(N)-1:0] next_loc(input logic [N*$clog2(M)-1:0] rings, input logic [$clog2(N)-1:0] ind);
@@ -31,7 +24,7 @@ function logic [$clog2(N)-1:0] next_loc(input logic [N*$clog2(M)-1:0] rings, inp
     
     old_loc = rings[(ind_i+1)*$clog2(M)-1 -: $clog2(M)];
 
-    if((N - ind_i) % 2) begin // go left
+    if((N - ind_i) & 1) begin // go left
         if(old_loc == 0) new_loc = N-1;
         else new_loc = old_loc - 1;
     end

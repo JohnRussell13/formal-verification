@@ -15,11 +15,6 @@ module hanoi
 	logic [N*$clog2(M)-1:0] rings_out;
 	logic [N-1:0] counter_in;
 	logic [N-1:0] counter_out; 
-
-	logic [$clog2(N)-1:0] exp_ind;
-	logic [$clog2(M)-1:0] exp_loc;
-
-	logic [$clog2(M)-1:0] old_loc;
 		
 	always @ (posedge clk) begin
 		if (rst) begin
@@ -44,38 +39,11 @@ module hanoi
 		counter_in = counter_out + 1;
 	end
 
-	always_comb begin
-		for(int i = N-1; i >= 0; i--) begin
-			if( !(counter_out - ((counter_out >> i) << i)) ) begin
-				exp_ind = i;
-				break;
-			end
-		end
-	end
-
-	always_comb begin
-		old_loc = rings[(exp_ind+1)*$clog2(M)-1 -: $clog2(M)];
-		if((N - exp_ind) & 1) begin // go left
-			if(old_loc == 0) exp_loc = N-1;
-			else exp_loc = old_loc - 1;
-		end
-		else begin // go right
-			if(old_loc == N-1) exp_loc = 0;
-			else exp_loc = old_loc + 1;
-		end
-	end
-
 	assign rings = rings_out;
 
 	default clocking
 		@(posedge clk);
 	endclocking
 
-	default disable iff (rst);
+	//default disable iff (rst);
 endmodule
-
-assume_valid_index :
-	assert property (ind == exp_ind);
-
-assume_valid_location :
-	assert property (ind == exp_loc);
