@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module wsc_tb();
+module tb_wsc();
 
 function logic [2 : 0] next(input logic [3 : 0] state, input logic [2 : 0] wsc, input logic side);
     logic [2 : 0] new_wsc;
