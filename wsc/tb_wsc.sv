@@ -2,12 +2,9 @@
 
 module wsc_tb();
 
-function logic [2 : 0] next(input logic [3 : 0] state, input logic [2 : 0] wsc);
+function logic [2 : 0] next(input logic [3 : 0] state, input logic [2 : 0] wsc, input logic side);
     logic [2 : 0] new_wsc;
     logic ok;
-    
-    if(state[2:0] == 7) side = 1;
-    else if(state[2:0] == 0) side = 0;
     
     if(state[3] == side) begin // first island -- always move 
         for(int i = 0; i < 3; i++) begin
@@ -82,10 +79,11 @@ initial begin
     #15ns rst_s = 0;
 end 
 
-assign wsc_s = next(state_s, wsc_s);
+assign wsc_s = next(state_s, wsc_s, side);
 
-// sheep dies || cabege dies
+// sheep dies || cabage dies
 assign error = (state_s[2] == state_s[1] && state_s[3] != state_s[2] || state_s[1] == state_s[0] && state_s[3] != state_s[0]) ? 1 : 0;
 assign done = (state_s == 15) & !error;
+assign side = (state_s[2:0] == 7) ? 1 : (state_s[2:0] == 0) ? 0 : side;
 
 endmodule
