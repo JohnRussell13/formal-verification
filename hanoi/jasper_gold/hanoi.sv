@@ -1,6 +1,6 @@
 module hanoi
 	#(
-		parameter N = 3,
+		parameter N = 16, // NUMBER OF RINGS
 		parameter M = 3
 	)
 	(
@@ -20,15 +20,18 @@ module hanoi
 	logic [$clog2(M)-1:0] exp_loc;
 
 	logic [$clog2(M)-1:0] old_loc;
+
+	logic [$clog2(M)*N-1:0] boris_const;
 		
 	always @ (posedge clk) begin
 		if (rst) begin
 			for(int i = 0; i < N*$clog2(M); i++) begin
 				rings_out[i] = 0;
 			end
-			for(int i = 0; i < N; i++) begin
+			for(int i = 1; i < N; i++) begin
 				counter_out[i] = 0;
 			end
+				counter_out[0] = 1;
 		end
 		else begin
 			rings_out = rings_in;
@@ -56,12 +59,18 @@ module hanoi
 	always_comb begin
 		old_loc = rings[(exp_ind+1)*$clog2(M)-1 -: $clog2(M)];
 		if((N - exp_ind) & 1) begin // go left
-			if(old_loc == 0) exp_loc = N-1;
+			if(old_loc == 0) exp_loc = M-1;
 			else exp_loc = old_loc - 1;
 		end
 		else begin // go right
-			if(old_loc == N-1) exp_loc = 0;
+			if(old_loc == M-1) exp_loc = 0;
 			else exp_loc = old_loc + 1;
+		end
+	end
+
+	always_comb begin
+		for(int i = 0; i < N; i++) begin
+			boris_const[$clog2(M)*i+$clog2(M)-1 -: $clog2(M)] = M-1;
 		end
 	end
 
@@ -72,10 +81,13 @@ module hanoi
 	endclocking
 
 	default disable iff (rst);
+
+	assume_valid_index :
+		restrict property (ind == exp_ind);
+
+	assume_valid_location :
+		restrict property (loc == exp_loc);
+
+	cover_thingy :
+		cover property (rings == boris_const);
 endmodule
-
-assume_valid_index :
-	assert property (ind == exp_ind);
-
-assume_valid_location :
-	assert property (ind == exp_loc);
